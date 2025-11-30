@@ -32,6 +32,7 @@ class TaskTrackerBot:
         tasks = {
             'morning': [],  # Оставляем для обратной совместимости, но не используем
             'day': [],
+            'cant_do': [],  # Новая секция "Нельзя делать"
             'evening': []
         }
         
@@ -48,14 +49,15 @@ class TaskTrackerBot:
             if '☀️' in clean_line and 'Дневн' in clean_line:
                 current_section = 'day'
                 continue
+            elif any(marker in clean_line for marker in ['⛔', '⛔️', 'Нельзя делать']):
+                current_section = 'cant_do'
+                continue
             elif ('🌙' in clean_line and 'Вечерн' in clean_line) or 'Вечерние задачи' in clean_line:
                 current_section = 'evening'
                 continue
             
-            # КОНЕЦ СЕКЦИЙ (выключаем парсинг) - все возможные варианты!
+            # КОНЕЦ СЕКЦИЙ (выключаем парсинг)
             elif any(marker in clean_line for marker in [
-                '⛔', '⛔️',  # Оба варианта эмодзи
-                'Нельзя делать',
                 '🎯 Твоя миссия',
                 '💡 Мудрость',
                 '🙏 Утренняя молитва',
@@ -71,7 +73,7 @@ class TaskTrackerBot:
                 if task_text:
                     tasks[current_section].append(task_text)
         
-        logger.info(f"📋 Распарсено задач: день={len(tasks['day'])}, вечер={len(tasks['evening'])}")
+        logger.info(f"📋 Распарсено задач: день={len(tasks['day'])}, нельзя={len(tasks['cant_do'])}, вечер={len(tasks['evening'])}")
         return tasks
     
     def create_checklist_keyboard(self, tasks, completed):
@@ -89,6 +91,18 @@ class TaskTrackerBot:
                 keyboard.append([{
                     'text': f'{emoji} {idx+1}. {short_task}',
                     'callback_data': f'toggle_day_{idx}'
+                }])
+        
+        # Нельзя делать
+        if tasks['cant_do']:
+            keyboard.append([{'text': '⛔ НЕЛЬЗЯ ДЕЛАТЬ', 'callback_data': 'header'}])
+            for idx, task in enumerate(tasks['cant_do']):
+                is_done = idx in completed.get('cant_do', [])
+                emoji = '⭐' if is_done else '☐'
+                short_task = task[:32] + '...' if len(task) > 32 else task
+                keyboard.append([{
+                    'text': f'{emoji} {idx+1}. НЕ {short_task}',
+                    'callback_data': f'toggle_cant_do_{idx}'
                 }])
         
         # Вечерние задачи  
@@ -125,6 +139,16 @@ class TaskTrackerBot:
                 msg += f"{emoji} {task}\n"
                 total_tasks += 1
                 if idx in completed.get('day', []):
+                    total_done += 1
+            msg += "\n"
+        
+        if tasks['cant_do']:
+            msg += "⛔ <b>НЕЛЬЗЯ ДЕЛАТЬ:</b>\n"
+            for idx, task in enumerate(tasks['cant_do']):
+                emoji = '⭐' if idx in completed.get('cant_do', []) else '☐'
+                msg += f"{emoji} НЕ {task}\n"
+                total_tasks += 1
+                if idx in completed.get('cant_do', []):
                     total_done += 1
             msg += "\n"
         
@@ -173,7 +197,7 @@ class TaskTrackerBot:
         # ШАГ 2: ДОБАВЛЕНИЕ - добавляем новые прогресс-бары и галочки
         updated_lines = []
         current_section = None
-        task_counters = {'morning': 0, 'day': 0, 'evening': 0}
+        task_counters = {'morning': 0, 'day': 0, 'cant_do': 0, 'evening': 0}
         
         for line in cleaned_lines:
             clean_line = line.replace('<b>', '').replace('</b>', '')
@@ -198,15 +222,21 @@ class TaskTrackerBot:
                 updated_lines.append(line)
                 continue
             elif any(marker in clean_line for marker in ['⛔', '⛔️', 'Нельзя делать']):
-                current_section = None
+                current_section = 'cant_do'  # Теперь парсим задачи в этой секции!
                 
-                # Добавляем прогресс-бар для вечера ПЕРЕД "Нельзя"
-                if tasks['evening']:
-                    evening_done = len(completed.get('evening', []))
-                    evening_total = len(tasks['evening'])
-                    evening_perc = int((evening_done / evening_total * 100)) if evening_total > 0 else 0
-                    evening_bar = self.get_progress_bar(evening_perc)
-                    updated_lines.append(f"📊 <b>Вечер:</b> {evening_bar} {evening_done}/{evening_total} ({evening_perc}%)")
+                # Добавляем прогресс-бар для дня+нельзя ПЕРЕД секцией "Нельзя"
+                day_done = len(completed.get('day', []))
+                cant_do_done = len(completed.get('cant_do', []))
+                day_total = len(tasks['day'])
+                cant_do_total = len(tasks['cant_do'])
+                
+                combined_done = day_done + cant_do_done
+                combined_total = day_total + cant_do_total
+                
+                if combined_total > 0:
+                    combined_perc = int((combined_done / combined_total * 100))
+                    combined_bar = self.get_progress_bar(combined_perc)
+                    updated_lines.append(f"📊 <b>День:</b> {combined_bar} {combined_done}/{combined_total} ({combined_perc}%)")
                     updated_lines.append("")  # Пустая строка
                 
                 updated_lines.append(line)
@@ -215,8 +245,8 @@ class TaskTrackerBot:
                 current_section = None
                 
                 # Добавляем общий прогресс ПЕРЕД "Твоя миссия"
-                total_done = len(completed.get('morning', [])) + len(completed.get('day', [])) + len(completed.get('evening', []))
-                total_tasks = len(tasks['morning']) + len(tasks['day']) + len(tasks['evening'])
+                total_done = len(completed.get('morning', [])) + len(completed.get('day', [])) + len(completed.get('cant_do', [])) + len(completed.get('evening', []))
+                total_tasks = len(tasks['morning']) + len(tasks['day']) + len(tasks['cant_do']) + len(tasks['evening'])
                 
                 if total_tasks > 0:
                     total_perc = int((total_done / total_tasks * 100))
@@ -535,9 +565,16 @@ class TaskTrackerBot:
         
         elif callback_data.startswith('toggle_'):
             # Переключаем задачу
-            parts = callback_data.split('_')
-            period = parts[1]  # morning/day/evening
-            task_idx = int(parts[2])
+            # Формат: toggle_day_0, toggle_evening_5, toggle_cant_do_1
+            if '_cant_do_' in callback_data:
+                # Обрабатываем cant_do отдельно (два подчёркивания)
+                task_idx = int(callback_data.split('_')[-1])
+                period = 'cant_do'
+            else:
+                # Обычный формат: toggle_day_0
+                parts = callback_data.split('_')
+                period = parts[1]  # day/evening
+                task_idx = int(parts[2])
             
             await self.toggle_task(message_id, period, task_idx)
             await self.answer_callback_query(callback_query_id)
