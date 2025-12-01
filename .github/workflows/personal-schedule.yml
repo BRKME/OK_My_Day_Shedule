@@ -49,5 +49,7 @@ jobs:
         fi
         
     - name: Send notification
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       run: |
         python notifier.py ${{ steps.period.outputs.period }}
