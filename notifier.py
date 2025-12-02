@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 import os
 
 class PersonalScheduleNotifier:
-def __init__(self):
+    def __init__(self):
         # Берём токен и ID чата ТОЛЬКО из переменных окружения
         self.telegram_token = os.getenv('TELEGRAM_TOKEN')
         if not self.telegram_token:
