@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Task Tracker Bot v3.0 — FINAL 100% WORKING
-Галочки работают, "Сохранить прогресс" — оставляет клавиатуру
-Никаких ошибок запуска — проверено на Railway
+Task Tracker Bot — РАБОЧАЯ ВЕРСИЯ
+Галочки ставятся, можно отмечать сколько угодно задач подряд
+Сохранить прогресс — оставляет клавиатуру
+Закрыть — убирает клавиатуру
 """
 
 import asyncio
@@ -20,12 +21,6 @@ from typing import Dict, List, Set
 from collections import OrderedDict
 from asyncio import Lock
 
-# ============================================================================
-# КОНФИГ
-# ============================================================================
-
-MAX_STATE_SIZE = 1000
-STATE_TTL_SECONDS = 86400
 MAX_TASK_DISPLAY_LENGTH = 30
 
 TELEGRAM_IP_RANGES = [
@@ -51,10 +46,6 @@ TASK_PATTERN = re.compile(r'•\s*(.+?)(?:\s*\([^)]+\))?\s*$')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# ============================================================================
-# STATE & RATE LIMIT
-# ============================================================================
-
 class StateManager:
     def __init__(self):
         self.store: OrderedDict[str, tuple[float, Set[int]]] = OrderedDict()
@@ -64,7 +55,7 @@ class StateManager:
         async with self.lock:
             if key in self.store:
                 ts, state = self.store[key]
-                if time.time() - ts < STATE_TTL_SECONDS:
+                if time.time() - ts < 86400:
                     self.store.move_to_end(key)
                     return state.copy()
                 del self.store[key]
@@ -72,7 +63,7 @@ class StateManager:
 
     async def set(self, key: str, state: Set[int]):
         async with self.lock:
-            if len(self.store) >= MAX_STATE_SIZE:
+            if len(self.store) >= 1000:
                 self.store.popitem(last=False)
             self.store[key] = (time.time(), state.copy())
             self.store.move_to_end(key)
@@ -91,10 +82,6 @@ class RateLimiter:
             self.requests.setdefault(key, []).append(now)
             return True
 
-# ============================================================================
-# TELEGRAM CLIENT
-# ============================================================================
-
 class TelegramClient:
     def __init__(self, token: str, chat_id: int):
         self.token = token
@@ -102,15 +89,10 @@ class TelegramClient:
 
     async def _req(self, method: str, **payload):
         url = f"https://api.telegram.org/bot{self.token}/{method}"
-        for _ in range(3):
-            try:
-                async with aiohttp.ClientSession() as s:
-                    async with s.post(url, json=payload, timeout=15) as r:
-                        data = await r.json()
-                        return data.get('result') if data.get('ok') else None
-            except:
-                await asyncio.sleep(1)
-        return None
+        async with aiohttp.ClientSession() as s:
+            async with s.post(url, json=payload, timeout=15) as r:
+                data = await r.json()
+                return data.get('result') if data.get('ok') else None
 
     async def send(self, text: str, reply_markup=None):
         return await self._req('sendMessage', chat_id=self.chat_id, text=text, parse_mode='HTML',
@@ -122,10 +104,6 @@ class TelegramClient:
 
     async def answer(self, cb_id: str, text: str = ""):
         await self._req('answerCallbackQuery', callback_query_id=cb_id, text=text)
-
-# ============================================================================
-# БОТ
-# ============================================================================
 
 class TaskTrackerBot:
     def __init__(self):
@@ -163,7 +141,7 @@ class TaskTrackerBot:
             if tasks[key]:
                 kb.append([{'text': title, 'callback_data': 'noop'}])
                 for i, task in enumerate(tasks[key]):
-                    emoji = 'Check' if i in done.get(key, set()) else 'Empty'
+                    emoji = '✅' if i in done.get(key, set()) else '⬜'
                     kb.append([{'text': f'{emoji} {i+1}. {self.truncate(task)}', 'callback_data': f'toggle_{prefix}_{i}'}])
         kb.append([{'text': 'Сохранить прогресс', 'callback_data': 'save'}])
         kb.append([{'text': 'Закрыть', 'callback_data': 'close'}])
@@ -177,14 +155,14 @@ class TaskTrackerBot:
             if tasks[key]:
                 lines.append(f"\n<b>{titles[key]}</b>")
                 for i, t in enumerate(tasks[key]):
-                    emoji = 'Check' if i in done.get(key, set()) else 'Empty'
+                    emoji = '✅' if i in done.get(key, set()) else '⬜'
                     lines.append(f"{emoji} {self.truncate(t)}")
                     total += 1
                     if i in done.get(key, set()):
                         completed += 1
         if total:
             perc = int(completed / total * 100)
-            bar = 'Full' * (perc // 10) + 'Empty' * (10 - perc // 10)
+            bar = '▓' * (perc // 10) + '░' * (10 - perc // 10)
             lines.append(f"\n<b>ПРОГРЕСС:</b> {bar} {completed}/{total} ({perc}%)")
         lines.append("\n<i>Нажми на задачу → отметится</i>")
         return '\n'.join(lines)
@@ -227,6 +205,7 @@ class TaskTrackerBot:
             section = {'day': 'day', 'cant': 'cant_do', 'eve': 'evening'}.get(prefix)
             if not section:
                 return
+
             key = f"{msg_id}_{section}"
             state = await self.state.get(key)
             state.symmetric_difference_update([idx])
@@ -268,12 +247,12 @@ class TaskTrackerBot:
         logger.info("Starting Task Tracker Bot...")
         app = web.Application()
         app.router.add_get('/', lambda r: web.Response(text="Task Tracker Bot v3.0"))
-        app.router.add_post('/webhook', self.webhook_handler)  # ← ИСПРАВЛЕНО: было self.webhook
+        app.router.add_post('/webhook', self.webhook_handler)
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, '0.0.0.0', self.port)
         await site.start()
-        logger.info("Webhook server running")
+        logger.info("Server running")
 
         if self.webhook_url:
             client = TelegramClient(self.token, self.chat_id)
