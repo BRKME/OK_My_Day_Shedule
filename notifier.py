@@ -520,17 +520,17 @@ class PersonalScheduleNotifier:
         content += f"🌅 <b>План на {day_ru} {date_str}</b>\n\n"
         
         if schedule.get('день'):
-            content += "<b>☀️ Дневные задачи:</b>\n"
+            content += "☀️ Дневные задачи:\n"  # Убран <b>
             for task in schedule['день']:
                 content += f"• {task}\n"
         if schedule.get('нельзя_день'):
-            content += "\n<b>⛔ Нельзя делать:</b>\n"
+            content += "\n⛔ Нельзя делать:\n"  # Убран <b>
             for task in schedule['нельзя_день']:
                 content += f"• {task}\n"
         day_count = len(schedule.get('день', [])) + len(schedule.get('нельзя_день', [])) - 1
         total_target = max(0, day_count)
         
-        content += f"\n💡 <b>Мудрость дня:</b>\n{wisdom}"
+        content += f"\n💡 Мудрость дня:\n{wisdom}"  # Убран <b>
         
         # Добавляем ссылку на молитву
         content += f"\n\n🙏 <a href='{self.prayer_url}'>Утренняя молитва</a>"
@@ -552,16 +552,15 @@ class PersonalScheduleNotifier:
         task_count = len(schedule.get('вечер', []))
         target_score = max(0, task_count - 1)
         
-        weather = await self.get_weather_forecast()
+        # Погоду НЕ добавляем в вечернее сообщение
         
-        content = weather
-        content += f"🌙 <b>Вечерний план на {day_ru} {date_str}</b>\n\n"
+        content = f"🌙 <b>Вечерний план на {day_ru} {date_str}</b>\n\n"
         
         if schedule.get('вечер'):
-            content += "<b>Вечерние задачи:</b>\n"
+            content += "Вечерние задачи:\n"  # Убран <b>
             for task in schedule['вечер']:
                 content += f"• {task}\n"
-        content += f"\n🎯 <b>Твоя миссия набрать вечером {target_score} баллов!</b>\n🌜 <b>Отличный день! Завершай дела и отдыхай!</b>\n💡 <i>Мудрость дня:</i>\n<b>{wisdom}</b>"
+        content += f"\n🎯 Твоя миссия набрать вечером {target_score} баллов!\n💡 Мудрость дня:\n{wisdom}"  # Убрана строка "Отличный день!" и жирный с Твоя миссия и мудрости
         return content
 
     async def fetch_event_file(self, filename):
