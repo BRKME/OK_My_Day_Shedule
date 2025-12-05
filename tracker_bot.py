@@ -791,6 +791,27 @@ class TaskTrackerBot:
         """HTTP endpoint для Railway health check"""
         return web.Response(text="OK", status=200)
     
+    async def webhook_handler(self, request):
+        """Обработчик webhook от Telegram"""
+        try:
+            update = await request.json()
+            
+            # Обрабатываем callback_query
+            if 'callback_query' in update:
+                callback_query = update['callback_query']
+                callback_data = callback_query.get('data', '')
+                callback_query_id = callback_query.get('id', '')
+                message = callback_query.get('message', {})
+                message_id = message.get('message_id', 0)
+                message_text = message.get('text', '')
+                
+                await self.process_callback(callback_data, callback_query_id, message_id, message_text)
+            
+            return web.Response(text='OK')
+        except Exception as e:
+            logger.error(f"❌ Ошибка webhook: {e}")
+            return web.Response(status=500)
+    
     async def run(self):
         """Основной цикл бота"""
         logger.info("🤖 Tracker Bot запущен!")
@@ -800,6 +821,7 @@ class TaskTrackerBot:
         app = web.Application()
         app.router.add_get('/', self.health_check)
         app.router.add_get('/health', self.health_check)
+        app.router.add_post('/webhook', self.webhook_handler)  # ← WEBHOOK!
         
         port = int(os.environ.get('PORT', 8080))
         runner = web.AppRunner(app)
@@ -808,8 +830,23 @@ class TaskTrackerBot:
         await site.start()
         logger.info(f"🌐 HTTP сервер запущен на порту {port}")
         
+        # Устанавливаем webhook
+        railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+        if railway_domain:
+            webhook_url = f"https://{railway_domain}/webhook"
+            async with aiohttp.ClientSession() as session:
+                url = f"https://api.telegram.org/bot{self.telegram_token}/setWebhook"
+                payload = {'url': webhook_url}
+                async with session.post(url, json=payload) as response:
+                    result = await response.json()
+                    if result.get('ok'):
+                        logger.info(f"✅ Webhook установлен: {webhook_url}")
+                    else:
+                        logger.error(f"❌ Ошибка webhook: {result}")
+        
         last_schedule_check = datetime.now()
         
+        # Основной цикл - только для проверки расписания
         while True:
             try:
                 # Проверяем расписание каждую минуту
@@ -818,24 +855,7 @@ class TaskTrackerBot:
                     await self.check_schedule()
                     last_schedule_check = now
                 
-                # Получаем обновления
-                updates = await self.get_updates()
-                
-                for update in updates:
-                    self.last_update_id = update.get('update_id', 0)
-                    
-                    # Обрабатываем callback_query
-                    if 'callback_query' in update:
-                        callback_query = update['callback_query']
-                        callback_data = callback_query.get('data', '')
-                        callback_query_id = callback_query.get('id', '')
-                        message = callback_query.get('message', {})
-                        message_id = message.get('message_id', 0)
-                        message_text = message.get('text', '')
-                        
-                        await self.process_callback(callback_data, callback_query_id, message_id, message_text)
-                
-                await asyncio.sleep(1)
+                await asyncio.sleep(60)  # Спим минуту
                 
             except Exception as e:
                 logger.error(f"❌ Ошибка в главном цикле: {e}")
