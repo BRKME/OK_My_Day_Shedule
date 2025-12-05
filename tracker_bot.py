@@ -244,6 +244,11 @@ class TaskTrackerBot:
                 
                 updated_lines.append(line)
                 continue
+            elif '💡' in clean_line and 'мудрость' in clean_line.lower():
+                # Добавляем пустую строку перед мудростью
+                updated_lines.append("")
+                updated_lines.append(line)
+                continue
             elif '🎯' in clean_line and 'миссия' in clean_line.lower():
                 current_section = None
                 
@@ -256,7 +261,7 @@ class TaskTrackerBot:
                     total_bar = self.get_progress_bar(total_perc, length=10)
                     updated_lines.append(f"🎯 <b>Общий прогресс:</b> {total_bar} {total_done}/{total_tasks} ({total_perc}%)")
                     updated_lines.append(f"💪 <b>Баллы:</b> {total_done} из {total_tasks}")
-                    updated_lines.append("")  # Пустая строка
+                    # Пустая строка убрана - миссия идёт сразу
                 
                 updated_lines.append(line)
                 continue
@@ -273,11 +278,11 @@ class TaskTrackerBot:
                 task_text = task_text.strip()  # Убираем лишние пробелы
                 
                 if is_done:
-                    # Добавляем только ОДНУ звёздочку
-                    updated_lines.append(f"• ⭐ {task_text}")
+                    # Только жёлтая звёздочка, без •
+                    updated_lines.append(f"⭐ {task_text}")
                 else:
-                    # Без звёздочки
-                    updated_lines.append(f"• {task_text}")
+                    # Пустая звёздочка, без •
+                    updated_lines.append(f"☆ {task_text}")
                 
                 task_counters[current_section] += 1
             else:
