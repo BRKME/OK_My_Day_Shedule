@@ -749,7 +749,8 @@ class TaskTrackerBot:
             },
             'percentage': percentage,
             'points': total_completed,
-            'max_points': total_tasks
+            'max_points': total_tasks,
+            'penalty': len(state['completed']['cant_do']) > 0  # ШТРАФ если сорвался
         }
         
         # Сохраняем в файл
@@ -757,9 +758,14 @@ class TaskTrackerBot:
             # ЭТАП 3: Обновляем исходное сообщение с прогресс-барами
             # ВАЖНО: используем clean_original, а НЕ original_text!
             clean_text = state.get('clean_original', state['original_text'])
+            
+            # КРИТИЧНО: парсим задачи ИЗ ТЕКУЩЕГО СООБЩЕНИЯ (не из state!)
+            # Потому что вечернее сообщение содержит только вечерние задачи
+            current_tasks = self.parse_tasks(clean_text)
+            
             updated_text = self.update_original_message_with_progress(
                 clean_text,
-                state['tasks'],
+                current_tasks,  # Используем текущие, а не state['tasks']
                 state['completed']
             )
             
