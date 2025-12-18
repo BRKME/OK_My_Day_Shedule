@@ -1,7 +1,552 @@
 
-1) Хотеть и допускать что все возможно - что я могу
-2) Развивать мышление собственника/ownership.
-3) Думать о себе как о бизнесе, даже в найме - моя капитализация - это сколько я сейчас зарабатываю и сколько буду в будущем, мой опыт, знания, репутация, и насколько я остаюсь релевантным рынку со всеми изменениями
-4) Прокачивать видимость - если я на митинге, мой голос звучит, мое мнение присутствует 
-5) Больше делать - меньше рефлексировать - моя задача на работе договориться со всеми и сделать хорошо
-Действие. Рациональность. Прагматизм. Остальное второстепенно. На работу приходим зарабатывать 6)деньги
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6 принципов профессионального успеха</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2d3436;
+            line-height: 1.7;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            opacity: 0.1;
+        }
+        
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .quote {
+            font-style: italic;
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 800px;
+            margin: 30px auto 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .principles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .principle-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .principle-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            padding: 25px 25px 15px;
+            color: white;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .principle-1 .card-header { background: linear-gradient(135deg, #FF6B6B 0%, #EE5A24 100%); }
+        .principle-2 .card-header { background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%); }
+        .principle-3 .card-header { background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%); }
+        .principle-4 .card-header { background: linear-gradient(135deg, #f368e0 0%, #ff9ff3 100%); }
+        .principle-5 .card-header { background: linear-gradient(135deg, #ff9f43 0%, #feca57 100%); }
+        .principle-6 .card-header { background: linear-gradient(135deg, #54a0ff 0%, #2e86de 100%); }
+        
+        .principle-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .principle-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .card-content {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .principle-description {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+        
+        .principle-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        
+        .principle-1 .principle-icon { color: #FF6B6B; }
+        .principle-2 .principle-icon { color: #48dbfb; }
+        .principle-3 .principle-icon { color: #1dd1a1; }
+        .principle-4 .principle-icon { color: #f368e0; }
+        .principle-5 .principle-icon { color: #ff9f43; }
+        .principle-6 .principle-icon { color: #54a0ff; }
+        
+        .core-values {
+            background: white;
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .core-values h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f2f6;
+        }
+        
+        .values-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .value-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .value-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 992px) {
+            .principles-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 25px;
+            }
+            
+            h1 {
+                font-size: 2.4rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .principles-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .principle-card {
+                max-width: 100%;
+            }
+            
+            .card-header {
+                padding: 20px 20px 15px;
+                min-height: 110px;
+            }
+            
+            .card-content {
+                padding: 25px;
+            }
+            
+            header {
+                padding: 40px 20px;
+            }
+            
+            .values-list {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .value-item {
+                width: 80%;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .principle-title {
+                font-size: 1.3rem;
+            }
+            
+            .principle-description {
+                font-size: 1rem;
+            }
+            
+            .principle-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            header {
+                padding: 30px 15px;
+            }
+            
+            .core-values {
+                padding: 25px 20px;
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .principle-card {
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+        
+        .principle-card:nth-child(1) { animation-delay: 0.1s; }
+        .principle-card:nth-child(2) { animation-delay: 0.2s; }
+        .principle-card:nth-child(3) { animation-delay: 0.3s; }
+        .principle-card:nth-child(4) { animation-delay: 0.4s; }
+        .principle-card:nth-child(5) { animation-delay: 0.5s; }
+        .principle-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Стили для темной темы */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+                color: #e0e0e0;
+            }
+            
+            .principle-card, .core-values {
+                background: #2d3436;
+                border-color: #404040;
+            }
+            
+            .principle-description {
+                color: #cccccc;
+            }
+            
+            .value-item {
+                background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%);
+                color: #e0e0e0;
+            }
+            
+            footer {
+                color: #aaaaaa;
+                border-top-color: #404040;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>6 принципов профессионального успеха</h1>
+            <p class="subtitle">Системный подход к карьерному росту и личной эффективности</p>
+            <div class="quote">
+                "Успех — это не случайность, это результат последовательного применения правильных принципов"
+            </div>
+        </header>
+        
+        <main>
+            <div class="principles-container">
+                <!-- Принцип 1 -->
+                <div class="principle-card principle-1">
+                    <div class="card-header">
+                        <div class="principle-number">1</div>
+                        <h2 class="principle-title">Верить в себя и свои возможности</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            Хотеть и допускать (верить в себя), что все возможно - что я могу абсолютно все. 
+                            Это фундаментальный принцип, который открывает двери к достижению любых целей.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Принцип 2 -->
+                <div class="principle-card principle-2">
+                    <div class="card-header">
+                        <div class="principle-number">2</div>
+                        <h2 class="principle-title">Мышление собственника</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            Развивать мышление собственника (ownership mind). 
+                            Относиться к проектам и задачам как к своим собственным, брать ответственность 
+                            за результаты и проявлять инициативу.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Принцип 3 -->
+                <div class="principle-card principle-3">
+                    <div class="card-header">
+                        <div class="principle-number">3</div>
+                        <h2 class="principle-title">Думать о себе как о бизнесе</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            Даже в найме - моя капитализация - это сколько я сейчас зарабатываю и сколько буду в будущем, 
+                            мой опыт, знания, репутация, и насколько я остаюсь релевантным рынку со всеми изменениями.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Принцип 4 -->
+                <div class="principle-card principle-4">
+                    <div class="card-header">
+                        <div class="principle-number">4</div>
+                        <h2 class="principle-title">Прокачивать видимость</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            Если я на митинге, мой голос звучит, мое мнение присутствует. 
+                            Активное участие в конференциях, встречах, выставках, новых знакомствах. 
+                            Видимость ведет к возможностям.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Принцип 5 -->
+                <div class="principle-card principle-5">
+                    <div class="card-header">
+                        <div class="principle-number">5</div>
+                        <h2 class="principle-title">Больше делать - меньше рефлексировать</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            Моя задача на работе договориться со всеми и сделать дело хорошо. 
+                            Фокус на действии и результатах, а не на излишнем анализе и сомнениях.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Принцип 6 -->
+                <div class="principle-card principle-6">
+                    <div class="card-header">
+                        <div class="principle-number">6</div>
+                        <h2 class="principle-title">Фокус на заработке</h2>
+                    </div>
+                    <div class="card-content">
+                        <p class="principle-description">
+                            На работу приходим зарабатывать деньги. Это прагматичный подход, 
+                            который помогает сохранять фокус на целях и не отвлекаться на второстепенное.
+                        </p>
+                        <div class="principle-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="core-values">
+                <h3>Ключевые ценности</h3>
+                <div class="values-list">
+                    <div class="value-item">Действие</div>
+                    <div class="value-item">Рациональность</div>
+                    <div class="value-item">Прагматизм</div>
+                </div>
+                <p style="margin-top: 25px; color: #666; font-style: italic;">
+                    Остальное второстепенно
+                </p>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2023 Принципы профессионального успеха. Практическое руководство к действию.</p>
+            <p>Адаптировано для всех устройств</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Анимация появления карточек при прокрутке
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.principle-card');
+            
+            // Создаем наблюдатель за появлением элементов
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { 
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            // Приостанавливаем анимации и начинаем наблюдение
+            cards.forEach(card => {
+                card.style.animationPlayState = 'paused';
+                observer.observe(card);
+            });
+            
+            // Добавляем эффект при клике на карточку
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+            
+            // Параллакс эффект для заголовка
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset;
+                const header = document.querySelector('header');
+                if (scrolled < 300) {
+                    const rate = scrolled * -0.3;
+                    header.style.transform = `translateY(${rate}px)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
