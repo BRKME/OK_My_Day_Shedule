@@ -227,16 +227,19 @@ class TaskTrackerBot:
             elif 'мудрость' in clean_line.lower() and 'дня' in clean_line.lower():
                 current_section = None
                 
-                # Добавляем общий прогресс ПЕРЕД "Мудрость дня"
-                total_done = len(completed.get('morning', [])) + len(completed.get('day', [])) + len(completed.get('cant_do', [])) + len(completed.get('evening', []))
-                total_tasks = len(tasks['morning']) + len(tasks['day']) + len(tasks['cant_do']) + len(tasks['evening'])
+                total_done = 0
+                total_tasks = 0
+                
+                for section in ['morning', 'day', 'evening']:
+                    if len(tasks[section]) > 0:
+                        total_done += len(completed.get(section, []))
+                        total_tasks += len(tasks[section])
                 
                 if total_tasks > 0:
                     total_perc = int((total_done / total_tasks * 100))
                     total_bar = self.get_progress_bar(total_perc, length=10)
                     updated_lines.append(f"🎯 <b>Общий прогресс:</b> {total_bar} {total_done}/{total_tasks} ({total_perc}%)")
                 
-                # Пустая строка перед мудростью
                 updated_lines.append("")
                 updated_lines.append(line)
                 continue
@@ -377,34 +380,33 @@ class TaskTrackerBot:
         message += "━━━━━━━━━━━━━━━━━━\n\n"
         
         # Статистика по периодам
-        if 'morning' in today_data and today_data['morning'].get('total', 0) > 0:
-            morning = today_data['morning']
+        morning = today_data.get('morning', {})
+        day = today_data.get('day', {})
+        
+        if morning.get('total', 0) > 0:
             morning_done = len(morning.get('completed', []))
             morning_total = morning.get('total', 0)
-            perc = int((morning_done / morning_total * 100)) if morning_total > 0 else 0
+            perc = int((morning_done / morning_total * 100))
             bar = self.get_progress_bar(perc)
-            message += f"☀️ Утро: {bar} {morning_done}/{morning_total} ({perc}%)\n"
+            message += f"🌅 Утро: {bar} {morning_done}/{morning_total} ({perc}%)\n"
         
-        if 'day' in today_data and today_data['day'].get('total', 0) > 0:
-            day = today_data['day']
+        if day.get('total', 0) > 0:
             day_done = len(day.get('completed', []))
             day_total = day.get('total', 0)
-            perc = int((day_done / day_total * 100)) if day_total > 0 else 0
+            perc = int((day_done / day_total * 100))
             bar = self.get_progress_bar(perc)
-            message += f"🌤️ День: {bar} {day_done}/{day_total} ({perc}%)\n"
+            message += f"☀️ День: {bar} {day_done}/{day_total} ({perc}%)\n"
         
-        if 'evening' in today_data and today_data['evening'].get('total', 0) > 0:
-            evening = today_data['evening']
-            evening_done = len(evening.get('completed', []))
-            evening_total = evening.get('total', 0)
-            perc = int((evening_done / evening_total * 100)) if evening_total > 0 else 0
-            bar = self.get_progress_bar(perc)
-            message += f"🌙 Вечер: {bar} {evening_done}/{evening_total} ({perc}%)\n"
+        overall_done = today_data.get('points', 0)
+        overall_total = today_data.get('max_points', 0)
+        overall_perc = int((overall_done / overall_total * 100)) if overall_total > 0 else 0
+        overall_bar = self.get_progress_bar(overall_perc)
+        message += f"🎯 Общая: {overall_bar} {overall_done}/{overall_total} ({overall_perc}%)\n"
         
         message += "\n━━━━━━━━━━━━━━━━━━\n"
         message += f"🎯 <b>РЕЗУЛЬТАТ ДНЯ:</b>\n"
-        message += f"💯 {today_data.get('points', 0)}/{today_data.get('max_points', 0)} задач ({today_data.get('percentage', 0)}%)\n"
-        message += f"🏆 Баллы: {today_data.get('points', 0)} из {today_data.get('max_points', 0)}\n\n"
+        message += f"💯 {overall_done}/{overall_total} задач ({overall_perc}%)\n"
+        message += f"🏆 Баллы: {overall_done} из {overall_total}\n\n"
         
         stars = self.get_stars(today_data.get('percentage', 0))
         if stars:
@@ -717,19 +719,16 @@ class TaskTrackerBot:
         total_completed = (
             len(state['completed']['morning']) +
             len(state['completed']['day']) +
-            len(state['completed']['cant_do']) +
             len(state['completed']['evening'])
         )
         total_tasks = (
             len(state['tasks']['morning']) +
             len(state['tasks']['day']) +
-            len(state['tasks']['cant_do']) +
             len(state['tasks']['evening'])
         )
         
         percentage = int((total_completed / total_tasks * 100)) if total_tasks > 0 else 0
         
-        # Сохраняем объединённые данные за сегодня
         stats[today_key] = {
             'morning': {
                 'completed': state['completed']['morning'],
@@ -750,7 +749,7 @@ class TaskTrackerBot:
             'percentage': percentage,
             'points': total_completed,
             'max_points': total_tasks,
-            'penalty': len(state['completed']['cant_do']) > 0  # ШТРАФ если сорвался
+            'penalty': len(state['completed']['cant_do']) > 0
         }
         
         # Сохраняем в файл
@@ -773,7 +772,8 @@ class TaskTrackerBot:
             keyboard = {
                 'inline_keyboard': [
                     [{'text': '🔄 Обновить прогресс', 'callback_data': 'update_progress'}],
-                    [{'text': '🙏 Утренняя молитва', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/prayer.html'}]
+                    [{'text': '🙏 Утренняя молитва', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/prayer.html'}],
+                    [{'text': '🏢 Принципы карьеры', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/career.html'}]
                 ]
             }
             
@@ -798,7 +798,8 @@ class TaskTrackerBot:
             keyboard = {
                 'inline_keyboard': [
                     [{'text': '🔄 Обновить прогресс', 'callback_data': 'update_progress'}],
-                    [{'text': '🙏 Утренняя молитва', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/prayer.html'}]
+                    [{'text': '🙏 Утренняя молитва', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/prayer.html'}],
+                    [{'text': '🏢 Принципы карьеры', 'url': 'https://brkme.github.io/OK_My_Day_Shedule/career.html'}]
                 ]
             }
             
