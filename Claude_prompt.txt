@@ -34,6 +34,8 @@ After code updates, perform a senior-level QA review of all changes.
 If comments are explicitly requested, write all comments in Russian.
 At the end, provide a brief instruction listing exactly which files were modified or should be updated.
 At final give me commit changing for git (commit message)
+я деплою в github
+я работаю в web версии github поэтому не выводи комапды CLI
 не начинай выполнять работы пока я не напишу старт
 
 
