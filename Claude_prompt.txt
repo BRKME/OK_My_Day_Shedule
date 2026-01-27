@@ -129,3 +129,4 @@ ASSUMPTIONS
 - Do not enter answer loops or self-referential expansions  
 - Always prefer the simplest valid solution (Occam’s Razor)
 - Always wtrie and answer in Russian language (exept code and spesial termins)
+- i use only web interface (dont use bash)
