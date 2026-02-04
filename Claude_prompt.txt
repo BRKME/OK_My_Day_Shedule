@@ -130,4 +130,4 @@ ASSUMPTIONS
 - Always prefer the simplest valid solution (Occam’s Razor)
 - Always wtrie and answer in Russian language (exept code and spesial termins)
 - i use only web interface (dont use bash)
-- write me commit information if you publish a full file
+- write me commit information if you publish a full file ( не создавай длинные md файлы с описанием изменений я их не читаю)
