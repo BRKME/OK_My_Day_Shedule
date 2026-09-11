@@ -2000,13 +2000,13 @@
     "penalty": false,
     "penalty_pushups": 0
   },
-  "weight": {
-    "2026-09-06": 90.0
-  },
   "2026-09-10": {
     "vacation": true
   },
   "2026-09-11": {
     "vacation": true
+  },
+  "pullups": {
+    "2026-09-11": 10
   }
 }
